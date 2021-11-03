@@ -1,10 +1,9 @@
-function solution1(n1,t1,m1,p){ //모두 출력 
+function RadixGame(n1,t1,m1,p){ //모두 출력 
 
-    this.n1=n1;
-    this.t1=t1;
+    this.t1=t1; //this 전역변수 
     this.m1=m1;
     this.p=p;
-    num1 = t1*m1; // this 전역변수 
+    num1 = t1*m1; 
     let arr=[];
     
      for(i=0;i<num1;i++) {
@@ -12,14 +11,13 @@ function solution1(n1,t1,m1,p){ //모두 출력
      }
      
     this.data=arr.split(""); //split함수 
-    console.log(`모두 출력 : ${data}`)
+    console.log(`\n${m1}명이 ${n1}진수 말하기 게임 \n모두: ${data}`)
 
-    solution3(m1,p)
+    Turn(m1,p)
 }
 
-function solution3(m1,p){ //n명일 때 
+function Turn(m1,p){ //n명일 때 
 
-   
     let arr_p=[];
     let p_i;
     let count=0;
@@ -29,10 +27,9 @@ function solution3(m1,p){ //n명일 때
 
         if(count<t1) //undefined 제거 
         arr_p.push(data[p_i]);
-
         count++;
     } 
-    console.log(`${p}번째 : ${arr_p}`)
+    console.log(`${p}번째 사람: ${arr_p}`)
     return arr_p;
 }
 
@@ -55,5 +52,6 @@ function solution2(n2,t2,m2){ //2명일 때
     console.log(`\nA: ${arr_a} , B: ${arr_b}`)
    }
 
-solution1(10,6,3,2)
-solution2(2,5,2)  
+RadixGame(10,6,3,2)
+RadixGame(16,6,3,2)
+solution2(2,4,2)  
