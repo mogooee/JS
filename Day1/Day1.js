@@ -1,4 +1,4 @@
-let shape=[];
+let shape=[]; //전역변수 this함수로 바꿔보기!!
 let data=[];
 
 function getArea(figure){ //function 선언문  
