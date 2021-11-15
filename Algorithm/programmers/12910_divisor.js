@@ -24,7 +24,7 @@ function solution(arr, divisor) {
   if (answer.length === 0) answer.push(-1);
   else AscendingCheck(answer);
 
-  //console.log(answer);
+  console.log(answer);
   return answer;
 }
 
