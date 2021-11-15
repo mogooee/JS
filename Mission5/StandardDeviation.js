@@ -111,7 +111,7 @@ function Percentage(data, a, b) {
 
   for (i = 0; i < Object.values(z).length; i++) {
     if (Object.values(z)[i] < 0)
-      //행: 10을 곱한 일의 자리수 , 열: 100을 곱한 일의 자리수
+      //행: 10을 곱한 정수 , 열: 100을 곱한 일의 자리수
       //z.a=-1, z.b=0.27
       percentage.push(
         (
