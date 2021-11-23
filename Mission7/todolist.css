@@ -1,0 +1,108 @@
+body {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  background-color: burlywood;
+}
+
+.container {
+  padding: 10px;
+  width: 380px;
+  margin: 0 auto;
+}
+
+.header {
+  /* width: 380px; */
+  height: 100px;
+  background-color: blanchedalmond;
+  position: relative;
+}
+
+.content {
+  padding: 30px;
+  margin: 0px auto;
+}
+
+.clear {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+.lineThrough {
+  text-decoration: line-through;
+  color: #ccc;
+}
+
+.content {
+  width: 380px;
+  height: 350px;
+  background-color: burlywood;
+}
+
+.content ul {
+  padding: 0;
+  margin: 0;
+}
+.item {
+  list-style: none;
+  padding: 0;
+  margin: 2rem;
+  position: relative;
+}
+
+.fa-check-circle {
+  color: #6eb200;
+}
+
+.item i.co {
+  position: absolute;
+  font-size: 25px;
+  left: 15px;
+  top: 10px;
+}
+
+.item p.text {
+  position: relative;
+  font-size: 20px;
+  padding: 0;
+  margin: 0;
+  left: 0px;
+}
+
+.item i.de {
+  color: red;
+  font-size: 25px;
+  position: absolute;
+  right: 15px;
+  top: 10px;
+}
+
+.item i:hover {
+  cursor: pointer;
+}
+
+.add_item {
+  position: relative;
+  padding: 2.5rem;
+}
+
+.add_item input {
+  position: absolute;
+  left: 50px;
+  height: 35px;
+  width: 300px;
+  background-color: transparent;
+  font-size: 15px;
+  padding-left: 15px;
+}
+
+.add_item i {
+  position: absolute;
+  font-size: 40px;
+  left: 5px;
+  color: brown;
+  cursor: pointer;
+}
