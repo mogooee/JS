@@ -16,6 +16,7 @@ class Model {
     if (toDo) {
       this.LIST.push({ name: toDo, id: this.id, done: false, trash: false });
       this.id++;
+      this.selectors.input.value = "";
     }
   }
 }
@@ -29,7 +30,9 @@ class View {
     this.LINE_THROUGH = "lineThrough";
   }
 
-  showLIST(toDo, id, done, trash) {
+  showLIST({ name, id, done, trash }) {
+    //const { name, id, done, trash } = toDo;
+
     if (trash) {
       return;
     }
@@ -37,19 +40,16 @@ class View {
     const LINE = done ? this.LINE_THROUGH : "";
     const item = `   <li class="item"> 
     <i class="fa ${DONE} co" job="complete" id="${id}"></i>
-    <p class="text ${LINE}">${toDo}</p> 
-    <i class="fa fa-pencil pen"></i>
+    <p class="text ${LINE}">${name}</p> 
+    <i class="fa fa-pencil pen" job="edit"></i>
     <i class="fa fa-trash-o de" job="delete" id="${id}"></i> 
     </li> 
     `;
     const position = "beforeend";
     //공백 입력시에는 보여주지 않는다.
-    if (toDo) {
+    if (name) {
       list.insertAdjacentHTML(position, item);
     }
-
-    //add가 끝나면 빈칸으로
-    this.model.selectors.input.value = "";
   }
 
   CompleteToDo(element) {
@@ -60,7 +60,8 @@ class View {
       .classList.toggle(this.LINE_THROUGH);
 
     //model = id, view=done,trash
-    console.log(this.model.LIST[element.id]);
+    console.log(this.model.LIST);
+    console.log(element.id);
 
     this.model.LIST[element.id].done = this.model.LIST[element.id].done
       ? false
@@ -69,7 +70,6 @@ class View {
 
   RemoveToDo(element) {
     element.parentNode.parentNode.removeChild(element.parentNode);
-
     this.model.LIST[element.id].trash = true;
   }
 }
@@ -91,12 +91,7 @@ class Controller {
     document.addEventListener("keyup", (event) => {
       if (event.keyCode === 13) {
         this.model.addLIST();
-        this.view.showLIST(
-          this.model.selectors.input.value,
-          this.model.id,
-          false,
-          false
-        );
+        this.view.showLIST(this.model.LIST[this.model.id - 1]);
       }
     });
   }
@@ -108,12 +103,7 @@ class Controller {
       const element = event.target;
       if (element.nodeName === "I") {
         this.model.addLIST();
-        this.view.showLIST(
-          this.model.selectors.input.value,
-          this.model.id,
-          false,
-          false
-        );
+        this.view.showLIST(this.model.LIST[this.model.id - 1]);
       }
     });
   }
