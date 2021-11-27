@@ -1,2 +1,1 @@
-# JS
-js
+# 🌠 Codesquad - cocoa 
