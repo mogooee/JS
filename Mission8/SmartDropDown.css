@@ -1,0 +1,36 @@
+.header {
+  text-align: center;
+  border-style: solid;
+  border-color: #fdcb6e;
+  background-color: #ffeaa7;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.show {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bolder;
+  list-style: none;
+  padding-left: 0;
+}
+
+.show li {
+  height: 50px;
+  margin: 15px 0px;
+  border-style: solid;
+  border-color: transparent;
+  background-color: #dfe6e9;
+}
+
+.show li:hover {
+  cursor: pointer;
+  background-color: gray;
+}
+
+.count {
+  font-size: 25px;
+  white-space: pre;
+}
