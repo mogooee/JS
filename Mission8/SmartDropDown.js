@@ -1,50 +1,56 @@
+const header = document.querySelector(".header");
 const container = document.querySelector(".container");
 const list = container.querySelector(".list");
 const count = document.querySelector(".count");
-
-let movingCount = {};
 
 function showFruitList() {
   list.classList.remove("hidden");
   list.classList.add("show");
 }
 
-container.addEventListener("mouseenter", () => {
+header.addEventListener("mouseenter", () => {
   const Timer = setTimeout(() => {
     showFruitList();
   }, 1000);
 
-  container.addEventListener("mouseleave", () => {
+  header.addEventListener("mouseleave", () => {
     clearTimeout(Timer);
   });
 });
 
-const debounce = (callback, delay) => {
-  let timerId;
-  return (event) => {
-    if (timerId) clearTimeout(timerId);
-    timerId = setTimeout(callback, delay, event);
-  };
-};
+let movingCount = {};
+let timer;
 
-list.addEventListener(
-  "mousemove",
-  debounce((event) => {
-    let eventTarget = event.target;
-
-    if (eventTarget.nodeName !== "LI") {
-      return;
-    }
-
-    printSelectedNum(eventTarget);
-  }, 500)
-);
+list.addEventListener("mousemove", (event) => {
+  if (timer || event.target.nodeName !== "LI") {
+    return;
+  }
+  //time=undefined (바로 출력)
+  //timer=1 (setTimeout의 반환값)
+  timer = setTimeout(() => {
+    //500ms 후 콜백함수 실행, timer=null
+    timer = null;
+    //처음 들어온 event를 기억
+    printSelectedNum(event.target.innerText);
+  }, 500);
+});
 
 function printSelectedNum(selectedFruit) {
-  if (!movingCount[selectedFruit.innerText]) {
-    movingCount[selectedFruit.innerText] = 1;
+  const countFruit = count.querySelector(`.${selectedFruit}`);
+
+  if (!movingCount[selectedFruit]) {
+    movingCount[selectedFruit] = 1;
+    createNewCount(selectedFruit);
   } else {
-    movingCount[selectedFruit.innerText]++;
+    movingCount[selectedFruit]++;
+
+    countFruit.innerHTML = `${selectedFruit} : ${movingCount[selectedFruit]}`;
   }
-  count.innerHTML = JSON.stringify(movingCount, null, 2);
+}
+
+function createNewCount(selectedFruit) {
+  const countLi = document.createElement("li");
+  count.appendChild(countLi);
+  countLi.classList.add(selectedFruit);
+  countLi.innerHTML = `${selectedFruit} : ${movingCount[selectedFruit]}`;
 }
