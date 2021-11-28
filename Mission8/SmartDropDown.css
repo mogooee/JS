@@ -1,3 +1,7 @@
+body {
+  width: 60%;
+}
+
 .header {
   text-align: center;
   border-style: solid;
@@ -18,8 +22,8 @@
 }
 
 .show li {
-  height: 50px;
-  margin: 15px 0px;
+  height: 60px;
+  margin: 20px 0px;
   border-style: solid;
   border-color: transparent;
   background-color: #dfe6e9;
@@ -33,4 +37,8 @@
 .count {
   font-size: 25px;
   white-space: pre;
+}
+
+.count li {
+  list-style: none;
 }
