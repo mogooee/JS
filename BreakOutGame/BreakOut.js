@@ -18,6 +18,7 @@ volumeOff.addEventListener("click", (event) => {
   bgm.muted = false;
   bgm.volume = 0.4;
   bgm.play();
+  //sound.play();
 });
 
 volumeOn.addEventListener("click", (event) => {
@@ -27,7 +28,7 @@ volumeOn.addEventListener("click", (event) => {
 });
 
 const ballRadius = 12;
-const paddleHeight = 12;
+const paddleHeight = 10;
 const paddleWidth = 160;
 
 //keyboard
@@ -64,6 +65,14 @@ class DrawObject {
     ctx.beginPath();
     ctx.arc(this.ballX, this.ballY, ballRadius, 0, Math.PI * 2);
     ctx.fillStyle = "#396EB0";
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  DrawBall2() {
+    ctx.beginPath();
+    ctx.arc(this.ball2X, this.ball2Y, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "red";
     ctx.fill();
     ctx.closePath();
   }
@@ -113,6 +122,8 @@ class DrawObject {
             ctx.fillStyle = "#B83B5E";
           } else if (this.bricks[r][c] == 3) {
             ctx.fillStyle = "#6A2C70";
+          } else if (this.bricks[r][c] == 4) {
+            ctx.fillStyle = "#865858";
           }
           ctx.fill();
 
@@ -137,6 +148,7 @@ class DrawObject {
   DrawScore(score) {
     ctx.font = "bold 20pt Arial";
     ctx.fillStyle = "#57837B";
+    // 💥 💘 💰 🚀 🎇 🌟
     ctx.fillText(`🚀 Score: ${score}`, 49, 38);
   }
 
@@ -159,6 +171,8 @@ class DrawCanvas {
     this.dx = 0;
     this.dy = -5;
 
+    this.dx2 = 0;
+    this.dy2 = -5;
     this.score = 0;
     this.life = 3;
     this.contact = 0;
@@ -170,6 +184,7 @@ class DrawCanvas {
   }
 
   ChangeSpeed() {
+    //ball1
     if (
       this.drawObject.ballX > this.drawObject.paddleX &&
       this.drawObject.ballX < this.drawObject.paddleX + paddleWidth
@@ -181,6 +196,16 @@ class DrawCanvas {
           paddleWidth
         ) * 10;
     }
+
+    if (
+      this.drawObject.ball2X > this.drawObject.paddleX &&
+      this.drawObject.ball2X < this.drawObject.paddleX + paddleWidth
+    ) {
+      this.dx2 =
+        ((this.drawObject.paddleX + paddleWidth / 2 - this.drawObject.ball2X) /
+          paddleWidth) *
+        10;
+    }
   }
 
   BounceBall() {
@@ -191,28 +216,43 @@ class DrawCanvas {
       this.drawObject.ballX + this.dx > canvas.width - ballRadius
     ) {
       this.dx = -this.dx;
+    } else if (
+      this.drawObject.ball2X - this.dx2 < ballRadius ||
+      this.drawObject.ball2X - this.dx2 > canvas.width - ballRadius
+    ) {
+      this.dx2 = -this.dx2;
     }
     //상
     if (this.drawObject.ballY + this.dy < ballRadius) {
       this.dy = -this.dy;
+    } else if (this.drawObject.ball2Y + this.dy2 < ballRadius) {
+      this.dy2 = -this.dy2;
     }
-    //하 - 바닥 // 게임종료
-    else if (this.drawObject.ballY + this.dy > canvas.height - ballRadius) {
+
+    //하 - 바닥 (게임종료)
+    if (
+      this.drawObject.ballY + this.dy > canvas.height - ballRadius ||
+      this.drawObject.ball2Y + this.dy2 > canvas.height - ballRadius
+    ) {
       this.life--;
 
       if (!this.life) {
+        //sound.src = "./laugh.mp3";
         localStorage.setItem("bestScore", this.score);
         alert("GAME OVER 😝");
       } else if (this.life > 0) {
         alert(`YOU HAVE ${this.life} MORE CHANCE!  🙏 `);
         this.drawObject.ballX = canvas.width / 2;
         this.drawObject.ballY = canvas.height - paddleHeight - ballRadius;
+        this.drawObject.ball2X = canvas.width / 2;
+        this.drawObject.ball2Y = canvas.height - paddleHeight - ballRadius;
         this.drawObject.paddleX = canvas.width / 2 - paddleWidth / 2;
         this.dx = 0;
+        this.dx2 = 0;
       }
     }
     //하 - 패들
-    else if (
+    if (
       this.drawObject.ballY + this.dy >
       canvas.height - paddleHeight - ballRadius
     ) {
@@ -225,14 +265,30 @@ class DrawCanvas {
         sound.src = "./touchPaddle.mp3";
       }
     }
+    //ball2
+    else if (
+      this.drawObject.ball2Y + this.dy2 >
+      canvas.height - paddleHeight - ballRadius
+    ) {
+      if (
+        this.drawObject.ball2X > this.drawObject.paddleX &&
+        this.drawObject.ball2X < this.drawObject.paddleX + paddleWidth
+      ) {
+        this.dy2 = -this.dy2;
+        this.ChangeSpeed();
+        sound.src = "./touchPaddle.mp3";
+      }
+    }
 
     this.DetectCollision();
 
     this.drawObject.ballX += this.dx;
     this.drawObject.ballY += this.dy;
 
-    this.drawObject.ball2X += -this.dx2;
-    this.drawObject.ball2Y += this.dy2;
+    if (level > 3) {
+      this.drawObject.ball2X -= this.dx2;
+      this.drawObject.ball2Y += this.dy2;
+    }
   }
 
   DetectCollision() {
@@ -252,25 +308,44 @@ class DrawCanvas {
             this.drawObject.ballY - ballRadius <
               brickY + brickHeight - brickPadding
           ) {
-            this.contact++;
             //벽돌에 닿으면 튕긴다
             this.dy = -this.dy;
+            this.contact++;
+          }
 
-            if (this.contact) {
-              if (this.calTimer) {
-                return;
-              }
+          //ball2
 
-              this.calTimer = setTimeout(() => {
-                this.calTimer = null;
-                this.drawObject.bricks[r][c] -= 1;
-                if (!this.drawObject.bricks[r][c]) {
-                  this.score++;
-                  sound.src = "./break.mp3";
-                }
-                this.contact = 0;
-              }, 50);
+          if (
+            //원 중심의 x축이 아니라 반지름 값만큼 더한 값이 벽돌 끝에 닿는 조건.
+            this.drawObject.ball2X + ballRadius > brickX &&
+            this.drawObject.ball2X - ballRadius <
+              brickX + brickWidth - brickPadding &&
+            //y축
+            this.drawObject.ball2Y + ballRadius > brickY &&
+            this.drawObject.ball2Y - ballRadius <
+              brickY + brickHeight - brickPadding
+          ) {
+            //벽돌에 닿으면 튕긴다
+            this.dy2 = -this.dy2;
+            this.contact++;
+          }
+
+          if (this.contact) {
+            if (this.calTimer) {
+              return;
             }
+
+            //[V]연속해서 깰 수 없게? - 스로틀
+            this.calTimer = setTimeout(() => {
+              this.calTimer = null;
+              this.drawObject.bricks[r][c] -= 1;
+              if (!this.drawObject.bricks[r][c]) {
+                this.score++;
+                sound.src = "./break.mp3";
+                //sound.play();
+              }
+              this.contact = 0;
+            }, 50);
           }
         }
       }
@@ -279,19 +354,23 @@ class DrawCanvas {
     if (this.score === brickColumnCount * brickRowCount * level) {
       level++;
       //호출되는 시간을 짧게 해서 공의 속도 증가
-      initialSpeed -= 3;
+      initialSpeed -= 1.5;
 
-      if (level < 4) {
+      if (level < 5) {
         alert(`🌟 LEVEL UP 🌟`);
         this.drawObject.MakeBricks(level);
         this.drawObject.DrawBricks();
         this.drawObject.ballX = canvas.width / 2;
         this.drawObject.ballY = canvas.height - paddleHeight - ballRadius;
+        this.drawObject.ball2X = canvas.width / 2;
+        this.drawObject.ball2Y = canvas.height - paddleHeight - ballRadius;
         this.drawObject.paddleX = canvas.width / 2 - paddleWidth / 2;
         this.dx = 0;
+        this.dx2 = 0;
         brickOffsetTop += 20;
       } else {
         bgm.pause();
+        localStorage.setItem("bestScore", this.score);
         alert("YOU WIN 😄");
         clearInterval(timer);
         document.location.reload();
@@ -323,6 +402,10 @@ class DrawCanvas {
     this.drawObject.DrawLevel();
     this.drawObject.DrawLine();
     this.drawObject.DrawBestCore();
+
+    if (level == 4) {
+      this.drawObject.DrawBall2();
+    }
   }
 }
 
