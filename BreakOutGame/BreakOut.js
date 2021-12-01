@@ -16,6 +16,7 @@ volumeOff.addEventListener("click", (event) => {
 
   sound.muted = false;
   bgm.muted = false;
+  bgm.volume = 0.4;
   bgm.play();
 });
 
@@ -25,9 +26,9 @@ volumeOn.addEventListener("click", (event) => {
   bgm.pause();
 });
 
-const ballRadius = 13;
-const paddleHeight = 300;
-const paddleWidth = 400;
+const ballRadius = 12;
+const paddleHeight = 12;
+const paddleWidth = 160;
 
 //keyboard
 let rightMoved = false;
@@ -37,9 +38,9 @@ let leftMoved = false;
 const brickRowCount = 6;
 const brickColumnCount = 5;
 const brickWidth = canvas.width / brickColumnCount;
-const brickHeight = 25;
+const brickHeight = 30;
 const brickPadding = 5;
-const brickOffsetTop = 100;
+let brickOffsetTop = 130;
 const brickOffsetLeft = 2.8;
 
 let level = 1;
@@ -59,15 +60,7 @@ class DrawObject {
   DrawBall() {
     ctx.beginPath();
     ctx.arc(this.ballX, this.ballY, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#487eb0";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  DrawBall2() {
-    ctx.beginPath();
-    ctx.arc(this.ball2X, this.ball2Y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "#396EB0";
     ctx.fill();
     ctx.closePath();
   }
@@ -80,7 +73,7 @@ class DrawObject {
       paddleWidth,
       paddleHeight
     );
-    ctx.fillStyle = "#2d3436";
+    ctx.fillStyle = "black";
     ctx.fill();
     ctx.closePath();
   }
@@ -112,22 +105,29 @@ class DrawObject {
             brickHeight - brickPadding
           );
           if (this.bricks[r][c] == 1) {
-            ctx.fillStyle = "#cd6133";
+            ctx.fillStyle = "#F08A5D";
           } else if (this.bricks[r][c] == 2) {
-            ctx.fillStyle = "#c23616";
+            ctx.fillStyle = "#B83B5E";
           } else if (this.bricks[r][c] == 3) {
-            ctx.fillStyle = "#6D214F";
+            ctx.fillStyle = "#6A2C70";
           }
           ctx.fill();
+
           ctx.closePath();
         }
       }
     }
   }
+
+  DrawLevel() {
+    ctx.font = "bold 20pt Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText(`LEVEL${level}`, 200, 105);
+  }
+
   DrawScore(score) {
     ctx.font = "bold 20pt Arial";
-    ctx.fillStyle = "#009432";
-    // 💥 💘 💰 🚀 🎇 🌟
+    ctx.fillStyle = "#57837B";
     ctx.fillText(`🚀 Score: ${score}`, 49, 40);
   }
 
@@ -139,7 +139,7 @@ class DrawObject {
   }
   DrawLife(life) {
     ctx.font = "bold 20pt Arial";
-    ctx.fillStyle = "#EA2027";
+    ctx.fillStyle = "#D54C4C";
     ctx.fillText(`💘 Life: ${life}`, 290, 40);
   }
 }
@@ -150,8 +150,12 @@ class DrawCanvas {
     this.dx = 0;
     this.dy = -5;
 
+    // this.dx2 = 0;
+    // this.dy2 = -6;
     this.score = 0;
     this.life = 3;
+    this.contact = 0;
+    this.calTimer;
   }
 
   init() {
@@ -189,12 +193,10 @@ class DrawCanvas {
     //하 - 바닥 // 게임종료
     else if (this.drawObject.ballY + this.dy > canvas.height - ballRadius) {
       this.life--;
+
       if (!this.life) {
-        sound.src = "./laugh.mp3";
         alert("GAME OVER 😝");
-        clearInterval(timer);
-        document.location.reload();
-      } else {
+      } else if (this.life > 0) {
         alert(`YOU HAVE ${this.life} MORE CHANCE!  🙏 `);
         this.drawObject.ballX = canvas.width / 2;
         this.drawObject.ballY = canvas.height - paddleHeight - ballRadius;
@@ -221,9 +223,6 @@ class DrawCanvas {
 
     this.drawObject.ballX += this.dx;
     this.drawObject.ballY += this.dy;
-
-    this.drawObject.ball2X += -this.dx2;
-    this.drawObject.ball2Y += this.dy2;
   }
 
   DetectCollision() {
@@ -243,21 +242,24 @@ class DrawCanvas {
             this.drawObject.ballY - ballRadius <
               brickY + brickHeight - brickPadding
           ) {
+            this.contact++;
             //벽돌에 닿으면 튕긴다
             this.dy = -this.dy;
 
-            //[]옆면은 통과하는 조건
+            // [V] 한 번에 사라지지 않게
+            if (this.contact) {
+              if (this.calTimer) {
+                return;
+              }
 
-            //윗면 아랫면이 닿으면 벽돌이 사라진다.
-            this.drawObject.bricks[r][c] -= 1;
-
-            console.log(this.drawObject.bricks);
-
-            //벽돌이 완전히 깨지면 점수 +1
-            if (!this.drawObject.bricks[r][c]) {
-              this.score++;
-              sound.src = "./break.mp3";
-              //sound.play();
+              this.calTimer = setTimeout(() => {
+                this.calTimer = null;
+                this.drawObject.bricks[r][c] -= 1;
+                if (!this.drawObject.bricks[r][c]) {
+                  this.score++;
+                }
+                this.contact = 0;
+              }, 50);
             }
           }
         }
@@ -270,16 +272,17 @@ class DrawCanvas {
       initialSpeed -= 3;
 
       if (level < 4) {
-        alert(`Congratulations! START LEVEL ${level}!!`);
+        alert(`🌟 LEVEL UP 🌟`);
         this.drawObject.MakeBricks(level);
         this.drawObject.DrawBricks();
         this.drawObject.ballX = canvas.width / 2;
         this.drawObject.ballY = canvas.height - paddleHeight - ballRadius;
         this.drawObject.paddleX = canvas.width / 2 - paddleWidth / 2;
         this.dx = 0;
+        brickOffsetTop += 20;
       } else {
         bgm.pause();
-        alert("YOU WIN! 😄");
+        alert("YOU WIN 😄");
         clearInterval(timer);
         document.location.reload();
       }
@@ -307,6 +310,7 @@ class DrawCanvas {
     this.drawObject.DrawPaddle();
     this.drawObject.DrawScore(this.score);
     this.drawObject.DrawLife(this.life);
+    this.drawObject.DrawLevel();
     this.drawObject.DrawLine();
   }
 }
@@ -356,7 +360,12 @@ function play() {
 }
 
 function timer() {
-  play();
-  setTimeout(timer, initialSpeed);
+  if (drawCanvas.life) {
+    play();
+    setTimeout(timer, initialSpeed);
+  } else {
+    clearTimeout();
+    document.location.reload();
+  }
 }
 timer();
