@@ -40,11 +40,14 @@ const brickColumnCount = 5;
 const brickWidth = canvas.width / brickColumnCount;
 const brickHeight = 30;
 const brickPadding = 5;
-let brickOffsetTop = 130;
+let brickOffsetTop = 134;
 const brickOffsetLeft = 2.8;
 
 let level = 1;
 let initialSpeed = 10;
+
+//local storage
+const bestScore = localStorage.getItem("bestScore");
 
 class DrawObject {
   constructor() {
@@ -119,28 +122,34 @@ class DrawObject {
     }
   }
 
+  DrawBestCore() {
+    ctx.font = "bold 17pt Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText(`BEST SCORE: ${bestScore}`, 165, 120);
+  }
+
   DrawLevel() {
     ctx.font = "bold 20pt Arial";
     ctx.fillStyle = "black";
-    ctx.fillText(`LEVEL${level}`, 200, 105);
+    ctx.fillText(`LEVEL${level}`, 200, 92);
   }
 
   DrawScore(score) {
     ctx.font = "bold 20pt Arial";
     ctx.fillStyle = "#57837B";
-    ctx.fillText(`🚀 Score: ${score}`, 49, 40);
+    ctx.fillText(`🚀 Score: ${score}`, 49, 38);
   }
 
   DrawLine() {
     ctx.font = "bold 20pt Arial";
     ctx.fillStyle = "black";
-    ctx.fillText("|", 240, 40);
-    ctx.fillText("_______________________________", 10, 60);
+    ctx.fillText("|", 240, 38);
+    ctx.fillText("_______________________________", 10, 55);
   }
   DrawLife(life) {
     ctx.font = "bold 20pt Arial";
     ctx.fillStyle = "#D54C4C";
-    ctx.fillText(`💘 Life: ${life}`, 290, 40);
+    ctx.fillText(`💘 Life: ${life}`, 290, 38);
   }
 }
 
@@ -150,8 +159,6 @@ class DrawCanvas {
     this.dx = 0;
     this.dy = -5;
 
-    // this.dx2 = 0;
-    // this.dy2 = -6;
     this.score = 0;
     this.life = 3;
     this.contact = 0;
@@ -163,7 +170,6 @@ class DrawCanvas {
   }
 
   ChangeSpeed() {
-    //ball1
     if (
       this.drawObject.ballX > this.drawObject.paddleX &&
       this.drawObject.ballX < this.drawObject.paddleX + paddleWidth
@@ -195,6 +201,7 @@ class DrawCanvas {
       this.life--;
 
       if (!this.life) {
+        localStorage.setItem("bestScore", this.score);
         alert("GAME OVER 😝");
       } else if (this.life > 0) {
         alert(`YOU HAVE ${this.life} MORE CHANCE!  🙏 `);
@@ -223,6 +230,9 @@ class DrawCanvas {
 
     this.drawObject.ballX += this.dx;
     this.drawObject.ballY += this.dy;
+
+    this.drawObject.ball2X += -this.dx2;
+    this.drawObject.ball2Y += this.dy2;
   }
 
   DetectCollision() {
@@ -246,7 +256,6 @@ class DrawCanvas {
             //벽돌에 닿으면 튕긴다
             this.dy = -this.dy;
 
-            // [V] 한 번에 사라지지 않게
             if (this.contact) {
               if (this.calTimer) {
                 return;
@@ -257,6 +266,7 @@ class DrawCanvas {
                 this.drawObject.bricks[r][c] -= 1;
                 if (!this.drawObject.bricks[r][c]) {
                   this.score++;
+                  sound.src = "./break.mp3";
                 }
                 this.contact = 0;
               }, 50);
@@ -312,6 +322,7 @@ class DrawCanvas {
     this.drawObject.DrawLife(this.life);
     this.drawObject.DrawLevel();
     this.drawObject.DrawLine();
+    this.drawObject.DrawBestCore();
   }
 }
 
