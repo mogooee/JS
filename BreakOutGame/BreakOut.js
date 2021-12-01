@@ -7,11 +7,8 @@ const volumeOff = document.querySelector(".volumeOff");
 
 //[V]bgm
 //[]효과음
-//크롬 자동재생 정책
-//1. 무음 2. 사용자 인터렉션(클릭, 탭, 터치)
 const sound = document.getElementById("sound");
 const bgm = document.getElementById("bgm");
-const [body] = document.getElementsByTagName("body");
 
 volumeOff.addEventListener("click", (event) => {
   volumeOff.classList.toggle("hidden");
@@ -20,7 +17,6 @@ volumeOff.addEventListener("click", (event) => {
   sound.muted = false;
   bgm.muted = false;
   bgm.play();
-  //sound.play();
 });
 
 volumeOn.addEventListener("click", (event) => {
@@ -30,8 +26,8 @@ volumeOn.addEventListener("click", (event) => {
 });
 
 const ballRadius = 13;
-const paddleHeight = 10;
-const paddleWidth = 200;
+const paddleHeight = 300;
+const paddleWidth = 400;
 
 //keyboard
 let rightMoved = false;
@@ -47,11 +43,15 @@ const brickOffsetTop = 100;
 const brickOffsetLeft = 2.8;
 
 let level = 1;
+let initialSpeed = 10;
 
 class DrawObject {
   constructor() {
     this.ballX = canvas.width / 2;
     this.ballY = canvas.height - paddleHeight - ballRadius;
+
+    this.ball2X = canvas.width / 2;
+    this.ball2Y = canvas.height - paddleHeight - ballRadius;
     this.paddleX = canvas.width / 2 - paddleWidth / 2;
     this.bricks = [];
     this.MakeBricks(level);
@@ -60,14 +60,13 @@ class DrawObject {
     ctx.beginPath();
     ctx.arc(this.ballX, this.ballY, ballRadius, 0, Math.PI * 2);
     ctx.fillStyle = "#487eb0";
-    // "rgb(Math.random()*255, Math.random()*255, Math.random()*255)";
     ctx.fill();
     ctx.closePath();
   }
 
   DrawBall2() {
     ctx.beginPath();
-    ctx.arc(this.ballX - 30, this.ballY, ballRadius, 0, Math.PI * 2);
+    ctx.arc(this.ball2X, this.ball2Y, ballRadius, 0, Math.PI * 2);
     ctx.fillStyle = "red";
     ctx.fill();
     ctx.closePath();
@@ -93,7 +92,6 @@ class DrawObject {
       for (let c = 0; c < brickColumnCount; c++) {
         //난수= 1~level
         this.bricks[r][c] = Math.floor(Math.random() * level + 1);
-        console.log(this.bricks);
       }
     }
   }
@@ -150,7 +148,8 @@ class DrawCanvas {
   constructor(drawObject) {
     this.drawObject = drawObject;
     this.dx = 0;
-    this.dy = -6;
+    this.dy = -5;
+
     this.score = 0;
     this.life = 3;
   }
@@ -160,6 +159,7 @@ class DrawCanvas {
   }
 
   ChangeSpeed() {
+    //ball1
     if (
       this.drawObject.ballX > this.drawObject.paddleX &&
       this.drawObject.ballX < this.drawObject.paddleX + paddleWidth
@@ -169,7 +169,7 @@ class DrawCanvas {
         -(
           (this.drawObject.paddleX + paddleWidth / 2 - this.drawObject.ballX) /
           paddleWidth
-        ) * 12;
+        ) * 10;
     }
   }
 
@@ -189,7 +189,6 @@ class DrawCanvas {
     //하 - 바닥 // 게임종료
     else if (this.drawObject.ballY + this.dy > canvas.height - ballRadius) {
       this.life--;
-      bgm.pause();
       if (!this.life) {
         sound.src = "./laugh.mp3";
         alert("GAME OVER 😝");
@@ -201,8 +200,6 @@ class DrawCanvas {
         this.drawObject.ballY = canvas.height - paddleHeight - ballRadius;
         this.drawObject.paddleX = canvas.width / 2 - paddleWidth / 2;
         this.dx = 0;
-        this.dy = -5;
-        bgm.play();
       }
     }
     //하 - 패들
@@ -224,6 +221,9 @@ class DrawCanvas {
 
     this.drawObject.ballX += this.dx;
     this.drawObject.ballY += this.dy;
+
+    this.drawObject.ball2X += -this.dx2;
+    this.drawObject.ball2Y += this.dy2;
   }
 
   DetectCollision() {
@@ -251,6 +251,8 @@ class DrawCanvas {
             //윗면 아랫면이 닿으면 벽돌이 사라진다.
             this.drawObject.bricks[r][c] -= 1;
 
+            console.log(this.drawObject.bricks);
+
             //벽돌이 완전히 깨지면 점수 +1
             if (!this.drawObject.bricks[r][c]) {
               this.score++;
@@ -264,16 +266,17 @@ class DrawCanvas {
 
     if (this.score === brickColumnCount * brickRowCount * level) {
       level++;
+      //호출되는 시간을 짧게 해서 공의 속도 증가
+      initialSpeed -= 3;
 
       if (level < 4) {
-        alert(`Congratulations! START LEVEL${level}!!`);
+        alert(`Congratulations! START LEVEL ${level}!!`);
         this.drawObject.MakeBricks(level);
         this.drawObject.DrawBricks();
         this.drawObject.ballX = canvas.width / 2;
         this.drawObject.ballY = canvas.height - paddleHeight - ballRadius;
         this.drawObject.paddleX = canvas.width / 2 - paddleWidth / 2;
         this.dx = 0;
-        this.dy = -5;
       } else {
         bgm.pause();
         alert("YOU WIN! 😄");
@@ -301,7 +304,6 @@ class DrawCanvas {
   Draw() {
     this.drawObject.DrawBricks();
     this.drawObject.DrawBall();
-    this.drawObject.DrawBall2();
     this.drawObject.DrawPaddle();
     this.drawObject.DrawScore(this.score);
     this.drawObject.DrawLife(this.life);
@@ -309,8 +311,6 @@ class DrawCanvas {
   }
 }
 
-//[V]버벅임
-//클래스로 계속 호출하니까 버벅임 발생 -> 전역으로 빼서 이벤트 발생할 때만 호출
 document.addEventListener("keydown", (event) => {
   if (event.key == "ArrowRight") {
     rightMoved = true;
@@ -355,4 +355,8 @@ function play() {
   }
 }
 
-const timer = setInterval(play, 10);
+function timer() {
+  play();
+  setTimeout(timer, initialSpeed);
+}
+timer();
