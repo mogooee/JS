@@ -14,12 +14,14 @@ class Model {
     const toDo = this.selectors.input.value;
 
     if (toDo) {
-      this.LIST.push({ name: toDo, id: this.id, done: false, trash: false });
+      this.LIST.push({ toDo: toDo, id: this.id, done: false, trash: false });
       this.id++;
       this.selectors.input.value = "";
     }
   }
-  EditToDo(element) {}
+  EditToDo(element) {
+    console.log(this.LIST[element.id]);
+  }
 }
 
 class View {
@@ -31,8 +33,8 @@ class View {
     this.LINE_THROUGH = "lineThrough";
   }
 
-  ShowLIST({ name, id, done, trash }) {
-    //const { name, id, done, trash } = toDo;
+  ShowLIST({ toDo, id, done, trash }) {
+    //const { toDo, id, done, trash } = toDo;
 
     if (trash) {
       return;
@@ -41,14 +43,14 @@ class View {
     const LINE = done ? this.LINE_THROUGH : "";
     const item = `   <li class="item"> 
     <i class="fa ${DONE} co" job="complete" id="${id}"></i>
-    <p class="text ${LINE}">${name}</p> 
-    <i class="fa fa-pencil pen" job="edit"></i>
+    <p class="text ${LINE}">${toDo}</p> 
+    <i class="fa fa-pencil pen" job="edit" id="${id}"></i>
     <i class="fa fa-trash-o de" job="delete" id="${id}"></i> 
     </li> 
     `;
     const position = "beforeend";
 
-    if (name) {
+    if (toDo) {
       list.insertAdjacentHTML(position, item);
     }
   }
@@ -121,6 +123,7 @@ class Controller {
         this.view.RemoveToDo(element);
       } else if (elementJob === "edit") {
         this.model.EditToDo(element);
+        //this.view.ShowEditToDo()
       }
     });
   }

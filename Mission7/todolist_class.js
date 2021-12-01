@@ -81,7 +81,8 @@ document.addEventListener("keyup", (event) => {
 const add_item = document.querySelector(".add_item");
 
 add_item.addEventListener("click", (event) => {
-  model.addLIST();
+  element = event.target;
+  if (element.nodeName === "I") model.addLIST();
 });
 
 //체크버튼, 쓰레기통 버튼

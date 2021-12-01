@@ -11,7 +11,7 @@ class calculate {
     this.console(this.a - this.b - this.c);
   }
   console(result) {
-    console.log(result);
+    console.log(plus());
   }
 }
 
