@@ -1,4 +1,4 @@
-let executionFunction = [];
+let executionFunctionArray = [];
 
 const getArea = (figure, ...num) => {
   switch (figure) {
@@ -12,33 +12,37 @@ const getArea = (figure, ...num) => {
 };
 
 const getCircle = (num) => {
-  saveExecutionSequence("circle");
   if (num[1]) {
     let sum = 0;
     for (let i = num[0]; i <= num[1]; i++) {
       sum += i * i;
     }
+    saveExecutionSequence("circle", sum);
     return sum;
-  } else return num * num * Math.PI;
+  } else {
+    saveExecutionSequence("circle", num * num * Math.PI);
+    return num * num * Math.PI;
+  }
 };
 
 const getRect = (num) => {
-  saveExecutionSequence("rect");
+  saveExecutionSequence("rect", num[0] * num[1]);
   return num[0] * num[1];
 };
 
 const getTrapezoid = (num) => {
-  saveExecutionSequence("trapezoid");
+  saveExecutionSequence("trapezoid", ((num[0] + num[1]) * num[2]) / 2);
   return ((num[0] + num[1]) * num[2]) / 2;
 };
 
-const saveExecutionSequence = (figure) => {
-  executionFunction.push(figure);
+const saveExecutionSequence = (figure, area) => {
+  let executionFunction = { figure, area };
+  executionFunctionArray.push(executionFunction);
   return;
 };
 
 const printExecutionSequence = () => {
-  return `계산수행순서: ${executionFunction}`;
+  return `계산수행순서: ${JSON.stringify(executionFunctionArray)}`;
 };
 
 console.log(getCircle(2));
