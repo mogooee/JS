@@ -42,13 +42,13 @@ const saveExecutionSequence = (figure, area) => {
 };
 
 const printExecutionSequence = () => {
-  return `계산수행순서: ${JSON.stringify(executionFunctionArray)}`;
+  return `계산수행순서: ${JSON.stringify(executionFunctionArray, null, 2)}`;
 };
 
-console.log(getCircle(2));
-console.log(getArea("circle", 10));
-console.log(getArea("rect", 10, 15));
-console.log(getArea("trapezoid", 10, 15, 12));
-console.log(getArea("circle", 1, 2));
+getCircle(2);
+getArea("circle", 10);
+getArea("rect", 10, 15);
+getArea("trapezoid", 10, 15, 12);
+getArea("circle", 1, 2);
 
 console.log(printExecutionSequence());
