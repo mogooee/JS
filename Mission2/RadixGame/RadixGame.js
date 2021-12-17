@@ -41,8 +41,8 @@ const splitPlayerNum = (allNum, player, people) => {
 const solution = (radix, endNum, people, gilDong) => {
   let allNum = splitAllNum(radix, endNum);
   let player = initPlayerNum(people);
-  let playerNum = splitPlayerNum(allNum, player, people);
-  return playerNum[gilDong];
+  splitPlayerNum(allNum, player, people);
+  return player[gilDong];
 };
 
-console.log(solution(2, 4, 3, 2));
+console.log(solution(2, 5, 3, 2));
