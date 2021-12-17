@@ -1,5 +1,4 @@
 const readline = require("readline");
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -7,64 +6,74 @@ const rl = readline.createInterface({
 
 rl.setPrompt("> ");
 rl.prompt();
-rl.on("line", (input) => {
-  isQuit(input);
-
-  const regexStr = input.match(/[a-z]+|[0-9]+/gi);
-  const figure = regexStr.filter((e) => isNaN(e));
-  const num = regexStr.filter((e) => !isNaN(e));
-
-  getArea(figure, num);
-  console.log(printExecutionSequence());
+rl.on("line", function (input) {
+  if (isQuitOrPrintOrInit(input)) return;
+  let figureAndNumObj = separateFigureAndNum(input);
+  let figure = figureAndNumObj.figure.join("");
+  let num = figureAndNumObj.num;
+  if (checkFigure(figure)) {
+    if (checkNum(figure, num)) {
+      getArea(figure, num);
+    }
+  }
+});
+rl.on("close", function () {
+  process.exit();
 });
 
-let executionFunctionArray = [];
+let executionSequence = [];
 
-const isQuit = (input) => {
+const isQuitOrPrintOrInit = (input) => {
   switch (input) {
     case "quit":
       console.log("> 입력을 종료합니다.");
       rl.close();
-      return;
+
+    case "print":
+      console.log(printExecutionSequence());
+
+    case "init":
+      initExecutionSequence();
+      return 1;
+
     default:
       rl.prompt();
+      return 0;
   }
+};
+
+const separateFigureAndNum = (input) => {
+  const regexStr = input.match(/[a-z]+|[0-9]+/gi);
+  const figure = regexStr.filter((e) => isNaN(e));
+  const num = regexStr.filter((e) => !isNaN(e));
+  return { figure, num };
 };
 
 const checkFigure = (figure) => {
-  if (
-    figure.join() !== "circle" &&
-    figure.join() !== "rect" &&
-    figure.join() !== "trapezoid"
-  ) {
-    console.log("도형을 잘못 입력했습니다. 다시 입력하세요.");
-    return;
-  }
+  if (figure !== "circle" && figure !== "rect" && figure !== "trapezoid") {
+    console.log("도형을 잘못 입력하셨습니다. 다시 입력하세요.");
+    return 0;
+  } else return 1;
 };
 
 const checkNum = (figure, num) => {
-  switch (figure.join()) {
+  switch (figure) {
     case "circle":
-      if (num.length > 2) break;
-      else return;
+      if (num.length === 1 || num.length === 2) return 1;
+      else break;
     case "rect":
-      if (num.length !== 2) break;
-      else return;
+      if (num.length === 2) return 1;
+      else break;
     case "trapezoid":
-      if (num.length !== 3) break;
-      else return;
-    default:
-      if (num.lenth === 0) break;
-      else return;
+      if (num.length === 3) return 1;
+      else break;
   }
   console.log("숫자를 잘못 입력하셨습니다. 다시 입력하세요.");
-  return;
+  return 0;
 };
 
 const getArea = (figure, num) => {
-  checkFigure(figure);
-  checkNum(figure, num);
-  switch (figure.join()) {
+  switch (figure) {
     case "circle":
       return getCircle(num);
     case "rect":
@@ -72,7 +81,6 @@ const getArea = (figure, num) => {
     case "trapezoid":
       return getTrapezoid(num);
   }
-
   return;
 };
 
@@ -82,32 +90,34 @@ const getCircle = (num) => {
     for (let i = num[0]; i <= num[1]; i++) {
       sum += i * i;
     }
-    saveExecutionSequence("circle", sum);
-    return sum;
+    return saveExecutionSequence("circle", sum);
   } else {
-    saveExecutionSequence("circle", num * num * Math.PI);
-    return num * num * Math.PI;
+    return saveExecutionSequence("circle", num * num * Math.PI);
   }
 };
 
 const getRect = (num) => {
-  saveExecutionSequence("rect", num[0] * num[1]);
-  return num[0] * num[1];
+  return saveExecutionSequence("rect", num[0] * num[1]);
 };
 
 const getTrapezoid = (num) => {
-  saveExecutionSequence("trapezoid", ((num[0] + num[1]) * num[2]) / 2);
-  return ((num[0] + num[1]) * num[2]) / 2;
+  return saveExecutionSequence(
+    "trapezoid",
+    ((Number(num[0]) + Number(num[1])) * num[2]) / 2
+  );
 };
 
 const saveExecutionSequence = (figure, area) => {
   let executionFunction = { figure, area };
-  executionFunctionArray.push(executionFunction);
+  executionSequence.push(executionFunction);
   return;
 };
 
 const printExecutionSequence = () => {
-  return `계산수행순서: ${JSON.stringify(executionFunctionArray)}`;
+  return executionSequence.flat();
 };
 
-//node .\Mission1\readline.js
+const initExecutionSequence = () => {
+  executionSequence = [];
+  return;
+};
