@@ -3,10 +3,10 @@ const peoples = ["crong!@#", "honux5", "sarah#", "hea3d", "zello", "5lucas"];
 const filterId = {
   nonSpecialChar(peoples) {
     return peoples.filter((e) => {
-      return !e.match(/[~!@#$%^&*()_+{}]+/gi);
+      return !e.match(/[~!@#$%^&*()_+{}]+/g);
     });
   },
-  nonNumChar(peoples) {
+  nonNum(peoples) {
     let arr = [];
     peoples.filter((e) => {
       arr.push(e.replace(/[0-9]/, ""));
@@ -17,4 +17,4 @@ const filterId = {
 
 console.log(filterId.nonSpecialChar(peoples));
 const filterNonSpecialChar = filterId.nonSpecialChar(peoples);
-console.log(filterId.nonNumChar(filterNonSpecialChar));
+console.log(filterId.nonNum(filterNonSpecialChar));
