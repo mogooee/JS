@@ -35,7 +35,7 @@ volumeOn.addEventListener("click", (event) => {
 
 const ballRadius = 12;
 const paddleHeight = 10;
-const paddleWidth = 160;
+const paddleWidth = 140;
 
 //keyboard
 let rightMoved = false;

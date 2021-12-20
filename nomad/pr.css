@@ -1,0 +1,24 @@
+.form,
+.greetings {
+  display: none;
+}
+.showing {
+  display: block;
+}
+
+body {
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+}
+
+.js-toDoList {
+  margin: 2rem;
+}
+
+.item i {
+  cursor: pointer;
+  margin: 1.5rem;
+}
