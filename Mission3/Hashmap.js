@@ -1,125 +1,128 @@
-function Hashmap() {
-  this.data = {};
-  this.ResultArr = [];
-  this.ResultArr.length = 10;
+class HashTable {
+  constructor(mapSize = 17) {
+    this.mapSize = mapSize;
+    this.keyMap = new Array(mapSize);
+  }
+
+  hash(key) {
+    let total = 0;
+    let PRIME = 31;
+    for (let i = 0; i < Math.min(key.length, 100); i++) {
+      let char = key[i];
+      let value = char.charCodeAt(0) - 96;
+      total = (total * PRIME + value) % this.keyMap.length;
+    }
+    return total;
+  }
+
+  put(key, value) {
+    const index = this.hash(key);
+    this.keyMap[index]
+      ? this.keyMap[index].push([key, value])
+      : (this.keyMap[index] = [[key, value]]);
+    return this.keyMap;
+  }
+  containsKey(key) {
+    const index = this.hash(key);
+    return this.keyMap[index] ? true : false;
+  }
+  get(key) {
+    const index = this.hash(key);
+    let value;
+    if (this.containsKey(key)) {
+      this.keyMap[index].forEach((arr) => {
+        if (arr[0] === key) {
+          value = arr[1];
+        }
+      });
+    }
+    return value;
+  }
+
+  remove(key) {
+    const index = this.hash(key);
+    if (this.containsKey(key)) {
+      this.keyMap[index].forEach((arr, i) => {
+        if (arr[0] === key) {
+          delete this.keyMap[index].splice(i, 1);
+        }
+      });
+    }
+    return this.keyMap;
+  }
+
+  replace(key, value) {
+    const index = this.hash(key);
+    this.keyMap[index].forEach((arr, i) => {
+      if (arr[0] === key) {
+        this.keyMap[index][i][1] = value;
+      }
+    });
+    return this.keyMap;
+  }
+
+  keys() {
+    let keysArr = [];
+    this.keyMap.forEach((e) => {
+      e.forEach((el) => {
+        keysArr.push(el[0]);
+      });
+    });
+    return keysArr;
+  }
+
+  values() {
+    let valuesArr = [];
+    this.keyMap.forEach((e) => {
+      e.forEach((el) => {
+        if (!valuesArr.includes(el[1])) {
+          valuesArr.push(el[1]);
+        }
+      });
+    });
+    return valuesArr;
+  }
+
+  size() {
+    return this.keys().length;
+  }
+
+  isEmpty() {
+    const empty = new Array(this.mapSize);
+    return JSON.stringify(empty) === JSON.stringify(this.keyMap) ? true : false;
+  }
+
+  clear() {
+    this.keyMap = new Array(this.mapSize);
+    return this.keyMap;
+  }
 }
-//해시
-Hashmap.prototype.Hashfunction = function (key) {
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) {
-    const H = 31; //소수
-    hash += hash * H + key.charCodeAt(i);
-  }
-  return hash % 10;
-};
 
-//데이터 담을 크기 지정
-Hashmap.prototype.ArraySize = function () {
-  for (i = 0; i < this.ResultArr.length; i++) {
-    this.ResultArr.push("");
-  }
-};
+const Hash = new HashTable();
 
-//put(String key, String value) 키-값을 추가한다.
-Hashmap.prototype.put = function (key, value) {
-  let index = this.Hashfunction(key);
-  this.ResultArr[index] = value;
-  console.log(index);
-  console.log(`[Put] \n${this.ResultArr}`);
-  return this.ResultArr;
-};
+console.log(Hash.isEmpty());
 
-//remove(String key) 해당 키에 있는 값을 삭제한다.
-Hashmap.prototype.remove = function (key) {
-  let index = this.Hashfunction(key);
-  delete this.ResultArr[index];
+Hash.put("hello", "world");
+Hash.put("beautiful", "world");
+Hash.put("hi", "bye");
+Hash.put("good", "morning");
+Hash.put("i'm fine thank you", "and you?");
 
-  console.log(`[Remove]\nkey가 ${key}인 값을 삭제합니다= ${this.ResultArr}`);
-  return this.ResultArr;
-};
+console.log(Hash.get("i'm fine thank you"));
+console.log(Hash.get("ou"));
 
-//containsKey(String) 해당 키가 존재하는지 판단해서 Bool 결과를 리턴한다.
-//동일한 키는 동일한 값을 생성한다.
-Hashmap.prototype.containsKey = function (key) {
-  let index = this.Hashfunction(key);
-  console.log(`[Containkey]\nkey가 ${key}인 값이 존재하는가?`);
-  if (this.ResultArr[index]) console.log("True");
-  else console.log("False");
-};
+console.log(Hash.containsKey("i'm fine thank you"));
+console.log(Hash.containsKey("ou"));
 
-//get(String) 해당 키와 매치되는 값을 찾아서 리턴한다.
-Hashmap.prototype.get = function (key) {
-  let index = this.Hashfunction(key);
-  console.log(`[Get]\nkey가 ${key}이면 value는 ${this.ResultArr[index]}이다`);
-  return this.ResultArr[index];
-};
+console.log(Hash.isEmpty());
 
-Hashmap.prototype.keys = function () {
-  console.log(`[Keys]\n${Object.keys(this.ResultArr)}`);
-  //return this.data;
-};
+console.log(Hash.keys());
+console.log(Hash.values());
 
-Hashmap.prototype.values = function () {
-  console.log(`[Values]\n${Object.values(this.ResultArr)}`);
-  //return this.data;
-};
+console.log(Hash.size());
 
-//replace(String key, String value) 키-값으로 기존 값을 대체한다.
-Hashmap.prototype.replace = function (key, value) {
-  let index = this.Hashfunction(key);
-  this.ResultArr[index] = value;
-  console.log(`[Replace]\n ${this.ResultArr}`);
-  return this.ResultArr;
-};
+console.log(Hash.remove("i'm fine thank you"));
+console.log(Hash.replace("good", "night"));
 
-//size() 전체 아이템 개수를 리턴한다.
-Hashmap.prototype.size = function () {
-  console.log(`[Size]\n${this.ResultArr.length}`);
-  return this.ResultArr.length;
-};
-
-//clear() 전체 맵을 초기화한다.
-Hashmap.prototype.clear = function () {
-  this.ResultArr = [];
-  console.log(`[Clear]\n${this.ResultArr}`);
-};
-
-//isEmpty() 비어있는 맵인지 Bool 결과를 리턴한다.
-//배열의 길이로 확인
-Hashmap.prototype.isEmpty = function () {
-  console.log(`[IsEmpty]`);
-  if (this.ResultArr.length === 0) console.log("True");
-  else console.log("False");
-};
-
-const Product = new Hashmap();
-
-Product.put("가", "A");
-Product.put("나", "B");
-Product.put("다", "C");
-
-//이 값이 없어도 데이터 크기가 4인지 size함수로 확인
-Product.put("라", "D");
-
-console.log(Product.data);
-
-Product.remove("가");
-
-Product.containsKey("나");
-Product.containsKey("가");
-
-Product.replace("나", "E");
-
-Product.size();
-
-Product.keys();
-
-Product.values();
-
-Product.get("나");
-
-Product.clear();
-Product.isEmpty();
-
-console.log(Product);
-console.log(Product.ResultArr);
+console.log(Hash.clear());
+console.log(Hash.isEmpty());
