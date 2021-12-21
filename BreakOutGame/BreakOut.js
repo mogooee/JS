@@ -6,7 +6,7 @@ const volumeOnDefault = document.querySelector(".volumeOnDefault");
 const volumeOff = document.querySelector(".volumeOff");
 
 //[V]bgm
-//[]효과음
+//[]효과음 
 const sound = document.getElementById("sound");
 const bgm = document.getElementById("bgm");
 
