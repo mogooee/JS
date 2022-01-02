@@ -1,56 +1,66 @@
-const header = document.querySelector(".header");
-const container = document.querySelector(".container");
-const list = container.querySelector(".list");
-const count = document.querySelector(".count");
+const list = document.querySelector(".menu__list");
+const menuCount = document.querySelector(".menu__count");
+const menuHeader = document.querySelector(".menu__header");
 
-function showFruitList() {
-  list.classList.remove("hidden");
-  list.classList.add("show");
-}
-
-header.addEventListener("mouseenter", () => {
-  const Timer = setTimeout(() => {
-    showFruitList();
-  }, 1000);
-
-  header.addEventListener("mouseleave", () => {
-    clearTimeout(Timer);
-  });
-});
-
-let movingCount = {};
-let timer;
-
-list.addEventListener("mousemove", (event) => {
-  if (timer || event.target.nodeName !== "LI") {
-    return;
+class SmartDropDownMenu {
+  constructor() {
+    this.count = {};
+    this.init();
   }
-  //time=undefined (바로 출력)
-  //timer=1 (setTimeout의 반환값)
-  timer = setTimeout(() => {
-    //500ms 후 콜백함수 실행, timer=null
-    timer = null;
-    //처음 들어온 event를 기억
-    printSelectedNum(event.target.innerText);
-  }, 500);
-});
 
-function printSelectedNum(selectedFruit) {
-  const countFruit = count.querySelector(`.${selectedFruit}`);
+  init() {
+    this.InitEventListener();
+  }
 
-  if (!movingCount[selectedFruit]) {
-    movingCount[selectedFruit] = 1;
-    createNewCount(selectedFruit);
-  } else {
-    movingCount[selectedFruit]++;
+  ShowList() {
+    list.classList.toggle("menu__hide");
+    menuCount.classList.toggle("menu__hide");
+  }
 
-    countFruit.innerHTML = `${selectedFruit} : ${movingCount[selectedFruit]}`;
+  CountMenu(fruit) {
+    this.count[fruit] ? this.count[fruit]++ : (this.count[fruit] = 1);
+  }
+
+  Rendering(fruit) {
+    if (!fruit) return;
+
+    if (this.count[fruit] === 1) {
+      const template = `<li id="${fruit}">${fruit}: ${this.count[fruit]}</li>`;
+      const position = "beforeend";
+      document
+        .querySelector(".menu__count")
+        .insertAdjacentHTML(position, template);
+    } else if (this.count[fruit] > 1) {
+      document.querySelector(
+        `#${fruit}`
+      ).innerText = `${fruit}: ${this.count[fruit]}`;
+    }
+  }
+
+  InitEventListener() {
+    let countTimer;
+    let listShowTimer;
+    list.addEventListener("mousemove", (e) => {
+      if (countTimer || e.target.nodeName !== "LI") {
+        return;
+      }
+      countTimer = setTimeout(() => {
+        countTimer = null;
+        this.CountMenu(e.target.innerText);
+        this.Rendering(e.target.innerText);
+      }, 500);
+    });
+
+    menuHeader.addEventListener("mouseenter", (e) => {
+      listShowTimer = setTimeout(() => {
+        this.ShowList();
+      }, 1000);
+    });
+
+    menuHeader.addEventListener("mouseleave", (e) => {
+      clearTimeout(listShowTimer);
+    });
   }
 }
 
-function createNewCount(selectedFruit) {
-  const countLi = document.createElement("li");
-  count.appendChild(countLi);
-  countLi.classList.add(selectedFruit);
-  countLi.innerHTML = `${selectedFruit} : ${movingCount[selectedFruit]}`;
-}
+const smartDropDownMenu = new SmartDropDownMenu();
